@@ -15,72 +15,76 @@ import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { storage, db } from "../config";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, addDoc, Timestamp, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  Timestamp,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 import { AuthContext, PostContext } from "../context";
 import { Category } from "../types";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { Picker } from "@react-native-picker/picker";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useIsFocused, CommonActions } from "@react-navigation/native";
+import { firebaseConfig } from "../config/firebase";
 
 type Steps = "camera" | "preview" | "info" | "uploading";
 
 const UploadScreen = ({ navigation }: BottomTabBarProps) => {
-import { firebaseConfig } from '../config/firebase'
-
-const getLabelsFromImage = async (uri : string) : (Promise<string[] | null>) => {
-  try {
-    console.log('Requesting object labels and rectangles for uri ', uri)
-    let response = await fetch(
-      'https://vision.googleapis.com/v1/images:annotate?key=' +
-      firebaseConfig.apiKey,
-      {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
+  const getLabelsFromImage = async (uri: string): Promise<string[] | null> => {
+    try {
+      console.log("Requesting object labels and rectangles for uri ", uri);
+      let response = await fetch(
+        "https://vision.googleapis.com/v1/images:annotate?key=" +
+          firebaseConfig.apiKey,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            requests: [
+              {
+                features: [{ type: "OBJECT_LOCALIZATION", maxResults: 10 }],
+                image: {
+                  source: {
+                    imageUri: uri,
+                  },
+                },
+              },
+            ],
+          }),
         },
-        method: 'POST',
-        body: JSON.stringify({
-          requests: [
-            {
-              features: [
-                { type: 'OBJECT_LOCALIZATION', maxResults: 10 }
-              ],
-              image: {
-                source: {
-                  imageUri: uri
-                }
-              }
-            }
-          ]
-        })
+      );
+
+      let responseJson = await response.json();
+      console.log("google responded", JSON.stringify(responseJson));
+
+      if (
+        responseJson.responses &&
+        responseJson.responses[0] &&
+        responseJson.responses[0].localizedObjectAnnotations
+      ) {
+        // get all labels
+        const labels = responseJson.responses[0].localizedObjectAnnotations.map(
+          (label: any) => label.name,
+        );
+
+        console.log("labels", labels);
+
+        return labels;
+      } else {
+        console.log("No object labels found");
       }
-    )
-
-    let responseJson = await response.json();
-    console.log('google responded', JSON.stringify(responseJson))
-    
-    if (
-      responseJson.responses && responseJson.responses[0] && responseJson.responses[0].localizedObjectAnnotations
-    ) {
-      // get all labels
-      const labels = responseJson.responses[0].localizedObjectAnnotations.map(
-        (label: any) => label.name
-      )
-
-      console.log('labels', labels)
-
-      return labels
-    } else {
-      console.log('No object labels found')
+    } catch (error) {
+      console.log(error);
     }
 
-  } catch (error) {
-     console.log(error);
-  }
-
-  return null
-}
+    return null;
+  };
 
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [camera, setCamera] = React.useState<Camera | null>(null);
@@ -175,13 +179,12 @@ const getLabelsFromImage = async (uri : string) : (Promise<string[] | null>) => 
       setCaption("");
       setStep("camera");
 
-      let labels = await getLabelsFromImage(downloadURL)
+      let labels = await getLabelsFromImage(downloadURL);
 
       // add labels to newPost
       await updateDoc(doc(db, "posts", docRef.id), {
-        labels: labels
-      })
-
+        labels: labels,
+      });
     }
   };
 
