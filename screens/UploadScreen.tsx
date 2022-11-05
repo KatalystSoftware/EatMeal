@@ -14,7 +14,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { AuthContext, PostContext } from "../context";
 import { Category } from "../types";
 
-type Steps = "camera" | "preview" | "info";
+type Steps = "camera" | "preview" | "info" | "uploading";
 
 const UploadScreen = () => {
   const [permission, requestPermission] = Camera.useCameraPermissions();
@@ -48,6 +48,7 @@ const UploadScreen = () => {
 
   const post = async () => {
     if (photo && user) {
+      setStep("uploading");
       // convert image URI to blob with XMLHTTP
       const blob = await new Promise<Blob>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -132,7 +133,7 @@ const UploadScreen = () => {
           </Pressable>
         </ImageBackground>
       )}
-      {step === "info" && photo && (
+      {(step === "info" || step === "uploading") && photo && (
         <ImageBackground
           style={styles.preview}
           source={{ uri: photo && photo.uri }}
@@ -144,7 +145,7 @@ const UploadScreen = () => {
               <MaterialIcon size={36} color="#f00" name="cancel" />
             </View>
           </Pressable>
-          <Pressable onPress={post}>
+          <Pressable disabled={step === "uploading"} onPress={post}>
             <View style={styles.postButtonContainer}>
               <Text style={styles.buttonText}>Post</Text>
               <MaterialIcon size={36} color="#000" name="send" />
