@@ -1,11 +1,7 @@
 import * as React from "react";
-import { StyleSheet, View, Text, Button } from "react-native";
-import { BottomTabParamList } from "../App";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StyleSheet, View, Text } from "react-native";
 
-type Props = NativeStackScreenProps<BottomTabParamList, "Home">;
-
-const UploadScreen = ({ route, navigation }: Props) => {
+const UploadScreen = () => {
   return (
     <View style={styles.container}>
       <Text>Post Screen</Text>

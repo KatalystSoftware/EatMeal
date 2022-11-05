@@ -1,19 +1,15 @@
 import * as React from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
-import { GoogleAuthProvider, signInWithCredential, User } from "firebase/auth";
+import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth } from "../config";
-import { Button, StyleSheet, View, Text } from "react-native";
+import { Button, StyleSheet, View } from "react-native";
 import Constants from "expo-constants";
 import { AuthContext } from "../context";
-import { LoginStackParamList } from "../App";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 WebBrowser.maybeCompleteAuthSession();
 
-type Props = NativeStackScreenProps<LoginStackParamList, "Login">;
-
-const LoginScreen = ({ route, navigation }: Props) => {
+const LoginScreen = () => {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: Constants?.manifest?.extra?.webClientId,
   });
@@ -31,7 +27,7 @@ const LoginScreen = ({ route, navigation }: Props) => {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential).then((res) => {
+      signInWithCredential(auth, credential).then(res => {
         dispatch({ type: "login", payload: res.user });
       });
     }

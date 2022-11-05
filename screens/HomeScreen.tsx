@@ -1,19 +1,15 @@
 import * as React from "react";
-import { StyleSheet, View, Text, Button } from "react-native";
-import { BottomTabParamList } from "../App";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { StyleSheet, View, Text } from "react-native";
 import { PostContext } from "../context";
 
-type Props = NativeStackScreenProps<BottomTabParamList, "Home">;
-
-const HomeScreen = ({ route, navigation }: Props) => {
+const HomeScreen = () => {
   const { state } = React.useContext(PostContext);
   const { posts } = state;
 
   return (
     <View style={styles.container}>
       {posts.length > 0 ? (
-        posts.map((post) => (
+        posts.map(post => (
           <View key={post.id}>
             <Text>{post.user.displayName}</Text>
             <Text>Insert image here</Text>

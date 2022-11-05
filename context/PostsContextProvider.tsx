@@ -39,7 +39,7 @@ export default function PostContextProvider({
     },
     {
       posts: [],
-    }
+    },
   );
 
   return (

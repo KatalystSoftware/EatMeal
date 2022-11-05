@@ -2,15 +2,11 @@ import * as React from "react";
 import * as WebBrowser from "expo-web-browser";
 import { auth } from "../config";
 import { Button, StyleSheet, View, Text } from "react-native";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthContext } from "../context";
-import { BottomTabParamList } from "../App";
 
 WebBrowser.maybeCompleteAuthSession();
 
-type Props = NativeStackScreenProps<BottomTabParamList, "Profile">;
-
-const ProfileScreen = ({ route, navigation }: Props) => {
+const ProfileScreen = () => {
   const { state, dispatch } = React.useContext(AuthContext);
 
   return (
