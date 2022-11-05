@@ -8,6 +8,7 @@ import {
   RefreshControl,
   TouchableOpacity,
   Alert,
+  ScrollView,
 } from "react-native";
 import { AuthContext, PostContext } from "../context";
 import { db } from "../config";
@@ -19,6 +20,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { Category, Post, PostWithUser, StrippedUser } from "../types";
+import { Chip } from "react-native-paper";
 
 const HomeScreen = () => {
   const { state, dispatch } = React.useContext(PostContext);
@@ -132,11 +134,30 @@ const HomeScreen = () => {
                   at {item.createdAt.toDate().toLocaleTimeString("en-US")}
                 </Text>
               </View>
-              <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
-              <Text style={styles.captionText}>
-                In This Image:{" "}
-                {item.labels ? item.labels.join(", ") : "no food found"}
-              </Text>
+              <View style={{ flex: 1 }}>
+                <Image
+                  style={styles.postImage}
+                  source={{ uri: item.imageUrl }}
+                />
+                <ScrollView
+                  horizontal={true}
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                  }}
+                >
+                  {item.labels &&
+                    [...new Set(item.labels)].map(label => (
+                      <Chip
+                        key={label}
+                        style={{ margin: 2, backgroundColor: "#af52de" }}
+                      >
+                        <Text style={{ color: "#fff" }}>{label}</Text>
+                      </Chip>
+                    ))}
+                </ScrollView>
+              </View>
               {item.caption && (
                 <Text style={styles.captionText}>{item.caption}</Text>
               )}
@@ -158,7 +179,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  captionText: { fontSize: 16, paddingHorizontal: 8 },
+  captionText: { fontSize: 16, paddingHorizontal: 8, paddingVertical: 4 },
   authorText: {
     paddingHorizontal: 8,
     fontSize: 20,
@@ -168,7 +189,6 @@ const styles = StyleSheet.create({
   divider: {
     borderBottomColor: "black",
     borderBottomWidth: StyleSheet.hairlineWidth,
-    marginVertical: 16,
   },
   list: { width: "100%" },
 });
