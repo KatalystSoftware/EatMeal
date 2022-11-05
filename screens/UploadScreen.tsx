@@ -13,6 +13,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { AuthContext, PostContext } from "../context";
 import { Category } from "../types";
+import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 
 type Steps = "camera" | "preview" | "info" | "uploading";
 
@@ -32,7 +33,12 @@ const UploadScreen = () => {
   const takePhoto = async () => {
     if (camera) {
       const photo = await camera.takePictureAsync();
-      setPhoto(photo);
+      const compressedPhoto = await manipulateAsync(
+        photo.uri,
+        [{ resize: { width: 500 } }],
+        { compress: 0.5, format: SaveFormat.JPEG },
+      );
+      setPhoto(compressedPhoto);
       setStep("preview");
     }
   };

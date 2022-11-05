@@ -38,7 +38,7 @@ export default function PostContextProvider({
         case "newPost":
           return {
             ...prevState,
-            posts: [...prevState.posts, action.payload.post],
+            posts: [action.payload.post, ...prevState.posts],
           };
         case "initPosts":
           return {
