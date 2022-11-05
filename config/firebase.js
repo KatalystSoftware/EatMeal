@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 import Constants from "expo-constants";
 
 // Optionally import the services that you want to use
@@ -26,6 +27,8 @@ const db = getFirestore(app);
 
 const auth = getAuth(app);
 
-export { db, auth };
+const storage = getStorage(app);
+
+export { db, auth, storage };
 // For more information on how to access Firebase in your project,
 // see the Firebase documentation: https://firebase.google.com/docs/web/setup#access-firebase

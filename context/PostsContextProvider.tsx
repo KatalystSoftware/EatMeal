@@ -1,10 +1,9 @@
 import * as React from "react";
-import { User } from "firebase/auth";
 import { Post } from "../types";
 
 export const PostContext = React.createContext<{
   state: PostState;
-  dispatch: React.Dispatch<any>;
+  dispatch: React.Dispatch<PostAction>;
 }>({
   state: { posts: [] },
   dispatch: () => null,
@@ -13,13 +12,19 @@ export const PostContext = React.createContext<{
 export interface PostState {
   posts: Post[];
 }
-export type PostAction = {
-  type: "newPost";
-  payload: {
-    post: Post;
-    user: User;
-  };
-};
+export type PostAction =
+  | {
+      type: "newPost";
+      payload: {
+        post: Post;
+      };
+    }
+  | {
+      type: "initPosts";
+      payload: {
+        posts: Post[];
+      };
+    };
 
 type PostContextProviderProps = {
   children: React.ReactNode;
@@ -34,6 +39,11 @@ export default function PostContextProvider({
           return {
             ...prevState,
             posts: [...prevState.posts, action.payload.post],
+          };
+        case "initPosts":
+          return {
+            ...prevState,
+            posts: action.payload.posts,
           };
       }
     },

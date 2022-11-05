@@ -1,17 +1,29 @@
 import * as React from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { PostContext } from "../context";
+import { db } from "../config";
+import { collection, getDocs } from "firebase/firestore";
+import { Post } from "../types";
 
 const HomeScreen = () => {
-  const { state } = React.useContext(PostContext);
+  const { state, dispatch } = React.useContext(PostContext);
   const { posts } = state;
+  React.useEffect(() => {
+    const fetchPosts = async () => {
+      const postsRef = collection(db, "posts");
+      const postsSnap = await getDocs(postsRef);
+      const posts = postsSnap.docs.map(doc => doc.data() as Post);
+      dispatch({ type: "initPosts", payload: { posts } });
+    };
+    fetchPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
       {posts.length > 0 ? (
         posts.map(post => (
           <View key={post.id}>
-            <Text>{post.user.displayName}</Text>
+            <Text>{post.userId}</Text>
             <Text>Insert image here</Text>
             <Text>{post.caption}</Text>
           </View>
