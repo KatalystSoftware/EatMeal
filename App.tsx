@@ -1,17 +1,29 @@
 import * as React from "react";
-import { LoginScreen } from "./screens";
+import { LoginScreen, HomeScreen, ProfileScreen } from "./screens";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { AuthenticatedUserProvider } from "./context";
+import {
+  AuthenticatedUserContext,
+  AuthenticatedUserContextType,
+  AuthenticatedUserProvider,
+} from "./context";
 
-const Stack = createStackNavigator();
+export type RootStackParamList = {
+  Login: undefined;
+  Home: undefined;
+  Profile: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
     <AuthenticatedUserProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </AuthenticatedUserProvider>

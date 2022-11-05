@@ -10,10 +10,14 @@ import {
   AuthenticatedUserContext,
   AuthenticatedUserContextType,
 } from "../context";
+import { RootStackParamList } from "../App";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 WebBrowser.maybeCompleteAuthSession();
 
-export default function LoginScreenr() {
+type Props = NativeStackScreenProps<RootStackParamList, "Login">;
+
+const LoginScreen = ({ route, navigation }: Props) => {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: Constants?.manifest?.extra?.webClientId,
   });
@@ -33,37 +37,26 @@ export default function LoginScreenr() {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential).then((res) => setUser(res.user));
+      signInWithCredential(auth, credential).then((res) => {
+        setUser(res.user);
+        navigation.navigate("Home");
+      });
     }
   }, [response]);
 
   return (
     <View style={styles.container}>
-      {user ? (
-        <>
-          <Text>Signed in as {user.displayName}</Text>
-          <Button
-            title="Log Out"
-            onPress={() => {
-              auth.signOut();
-              setUser(null);
-            }}
-          />
-        </>
-      ) : (
-        <Button
-          disabled={!request}
-          title="Login with Google"
-          onPress={() => {
-            promptAsync();
-          }}
-        />
-      )}
-
+      <Button
+        disabled={!request}
+        title="Login with Google"
+        onPress={() => {
+          promptAsync();
+        }}
+      />
       <StatusBar style="auto" />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -73,3 +66,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+
+export default LoginScreen;
