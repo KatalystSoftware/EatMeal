@@ -8,19 +8,61 @@ import {
 } from "react-native";
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
-import { storage, db } from "../config";
+import { storage, db, } from "../config";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc } from "firebase/firestore";
 import { AuthContext, PostContext } from "../context";
 import { Category } from "../types";
+import { firebaseConfig } from "../config/firebase";
 
 type Steps = "camera" | "preview" | "info";
+
+const submitToGoogle = async (uri : string) => {
+  try {
+    let body = JSON.stringify({
+      requests: [
+        {
+          features: [
+            { type: 'LABEL_DETECTION', maxResults: 10 }
+          ],
+          image: {
+            source: {
+              imageUri: uri
+            }
+          }
+        }
+      ]
+    })
+
+    let response = await fetch(
+      'https://vision.googleapis.com/v1/images:annotate?key=' +
+      firebaseConfig.apiKey,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: 'POST',
+        body: body
+      }
+    )
+
+    let responseJson = await response.json();
+    console.log(responseJson)
+
+    return responseJson
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
 const UploadScreen = () => {
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [camera, setCamera] = React.useState<Camera | null>(null);
   const [photo, setPhoto] = React.useState<CameraCapturedPicture | null>(null);
   const [step, setStep] = React.useState<Steps>("camera");
+  const [nakki, setText] = React.useState<string>("");
   const authContext = React.useContext(AuthContext);
   const { user } = authContext.state;
   const { dispatch } = React.useContext(PostContext);
@@ -85,6 +127,8 @@ const UploadScreen = () => {
         payload: { post: { ...post, id: docRef.id } },
       });
       setStep("camera");
+
+      setText(JSON.stringify(await submitToGoogle(downloadURL)))
     }
   };
 
