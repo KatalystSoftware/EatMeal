@@ -6,15 +6,25 @@ import {
   Image,
   FlatList,
   RefreshControl,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
-import { PostContext } from "../context";
+import { AuthContext, PostContext } from "../context";
 import { db } from "../config";
-import { collection, getDoc, getDocs, doc } from "firebase/firestore";
+import {
+  collection,
+  getDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 import { Category, Post, PostWithUser, StrippedUser } from "../types";
 
 const HomeScreen = () => {
   const { state, dispatch } = React.useContext(PostContext);
   const { posts } = state;
+  const userContext = React.useContext(AuthContext);
+  const { user } = userContext.state;
   const [refreshing, setRefreshing] = React.useState(false);
 
   const fetchPosts = async () => {
@@ -45,6 +55,53 @@ const HomeScreen = () => {
     fetchPosts();
   }, []);
 
+  const deletePost = (post: PostWithUser) => {
+    Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "OK",
+        onPress: async () => {
+          // delete post by id from firebase
+          const postsRef = collection(db, "posts");
+          const postRef = doc(postsRef, post.id);
+          await deleteDoc(postRef);
+          dispatch({ type: "deletePost", payload: { post } });
+        },
+      },
+    ]);
+  };
+
+  const openPostMenu = (post: PostWithUser) => {
+    Alert.alert(
+      "Post Menu",
+      "What would you like to do?",
+      [
+        {
+          text: "Edit Post",
+          onPress: () => console.log("editing..."),
+          style: "default",
+        },
+        {
+          text: "Delete Post",
+          onPress: () => deletePost(post),
+          style: "destructive",
+        },
+        {
+          text: "Cancel",
+          onPress: () => console.log("canceled..."),
+          style: "cancel",
+        },
+      ],
+      {
+        cancelable: true,
+        onDismiss: () => console.log("dismissed..."),
+      },
+    );
+  };
+
   return (
     <View style={styles.container}>
       {posts.length > 0 ? (
@@ -56,7 +113,11 @@ const HomeScreen = () => {
           data={posts}
           ItemSeparatorComponent={() => <View style={styles.divider} />}
           renderItem={({ item }) => (
-            <View key={item.id}>
+            <TouchableOpacity
+              disabled={item.userId !== user?.uid}
+              key={item.id}
+              onPress={() => openPostMenu(item)}
+            >
               <View
                 style={{
                   flex: 1,
@@ -79,7 +140,7 @@ const HomeScreen = () => {
               {item.caption && (
                 <Text style={styles.captionText}>{item.caption}</Text>
               )}
-            </View>
+            </TouchableOpacity>
           )}
           keyExtractor={item => item.id}
         />

@@ -24,6 +24,12 @@ export type PostAction =
       payload: {
         posts: PostWithUser[];
       };
+    }
+  | {
+      type: "deletePost";
+      payload: {
+        post: PostWithUser;
+      };
     };
 
 type PostContextProviderProps = {
@@ -39,6 +45,12 @@ export default function PostContextProvider({
           return {
             ...prevState,
             posts: [action.payload.post, ...prevState.posts],
+          };
+        case "deletePost":
+          return {
+            posts: [
+              ...prevState.posts.filter(p => p.id !== action.payload.post.id),
+            ],
           };
         case "initPosts":
           return {
