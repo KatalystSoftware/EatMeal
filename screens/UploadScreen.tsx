@@ -178,13 +178,13 @@ const UploadScreen = ({ navigation }: BottomTabBarProps) => {
       });
       setCaption("");
       setStep("camera");
+      navigation.dispatch(CommonActions.navigate("Home"));
 
-      let labels = await getLabelsFromImage(downloadURL);
-
-      // add labels to newPost
-      await updateDoc(doc(db, "posts", docRef.id), {
-        labels: labels,
-      });
+      getLabelsFromImage(downloadURL).then(labels =>
+        updateDoc(doc(db, "posts", docRef.id), {
+          labels: labels,
+        }),
+      );
     }
   };
 
