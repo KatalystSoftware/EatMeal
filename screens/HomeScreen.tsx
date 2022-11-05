@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Image, FlatList } from "react-native";
 import { PostContext } from "../context";
 import { db } from "../config";
 import { collection, getDoc, getDocs, doc } from "firebase/firestore";
-import { Post, PostWithUser, StrippedUser } from "../types";
+import { Category, Post, PostWithUser, StrippedUser } from "../types";
 
 const HomeScreen = () => {
   const { state, dispatch } = React.useContext(PostContext);
@@ -52,7 +52,7 @@ const HomeScreen = () => {
                 }}
               >
                 <Text style={styles.authorText}>
-                  by {item.user.displayName}
+                  {Category[item.category]} by {item.user.displayName}
                 </Text>
                 <Text style={styles.authorText}>
                   at {item.createdAt.toDate().toLocaleTimeString("en-US")}
