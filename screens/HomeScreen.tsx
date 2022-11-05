@@ -125,12 +125,13 @@ const HomeScreen = () => {
                   flex: 1,
                   justifyContent: "space-between",
                   flexDirection: "row",
+                  alignItems: "center",
                 }}
               >
                 <Text style={styles.authorText}>
                   {Category[item.category]} by {item.user.displayName}
                 </Text>
-                <Text style={styles.authorText}>
+                <Text style={styles.dateText}>
                   at {item.createdAt.toDate().toLocaleTimeString("en-US")}
                 </Text>
               </View>
@@ -182,13 +183,18 @@ const styles = StyleSheet.create({
   captionText: { fontSize: 16, paddingHorizontal: 8, paddingVertical: 4 },
   authorText: {
     paddingHorizontal: 8,
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
+  },
+  dateText: {
+    paddingHorizontal: 8,
+    fontSize: 16,
   },
   postImage: { width: "100%", height: 420 },
   divider: {
     borderBottomColor: "black",
     borderBottomWidth: StyleSheet.hairlineWidth,
+    marginTop: 20,
   },
   list: { width: "100%" },
 });
