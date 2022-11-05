@@ -47,7 +47,7 @@ const LoginScreen = () => {
     <View style={styles.container}>
       <Pressable
         style={{
-          backgroundColor: "#4285F4",
+          backgroundColor: "#af52de",
           padding: 10,
           borderRadius: 5,
           flexDirection: "row",

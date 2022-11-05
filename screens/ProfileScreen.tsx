@@ -16,6 +16,7 @@ const ProfileScreen = () => {
           <Text>Signed in as {state.user.displayName}</Text>
           <Button
             title="Log Out"
+            color="#af52de"
             onPress={() => {
               auth.signOut();
               dispatch({ type: "logout" });
