@@ -20,10 +20,12 @@ import { AuthContext, PostContext } from "../context";
 import { Category } from "../types";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { Picker } from "@react-native-picker/picker";
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { useIsFocused, CommonActions } from "@react-navigation/native";
 
 type Steps = "camera" | "preview" | "info" | "uploading";
 
-const UploadScreen = () => {
+const UploadScreen = ({ navigation }: BottomTabBarProps) => {
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [camera, setCamera] = React.useState<Camera | null>(null);
   const [photo, setPhoto] = React.useState<CameraCapturedPicture | null>(null);
@@ -33,6 +35,7 @@ const UploadScreen = () => {
   const authContext = React.useContext(AuthContext);
   const { user } = authContext.state;
   const { dispatch } = React.useContext(PostContext);
+  const isFocused = useIsFocused();
 
   React.useEffect(() => {
     requestPermission();
@@ -59,6 +62,13 @@ const UploadScreen = () => {
 
   const submitPhoto = () => {
     setStep("info");
+  };
+
+  const goBack = () => {
+    setPhoto(null);
+    setCaption("");
+    setStep("camera");
+    navigation.dispatch(CommonActions.goBack());
   };
 
   const post = async () => {
@@ -118,17 +128,36 @@ const UploadScreen = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
-        {step === "camera" && (
+        {step === "camera" && isFocused && (
           <Camera
             ref={ref => setCamera(ref)}
             style={styles.camera}
             type={CameraType.back}
           >
-            <Pressable onPress={takePhoto}>
-              <View style={styles.photoButtonContainer}>
-                <MaterialIcon size={56} color="#fff" name="camera" />
-              </View>
-            </Pressable>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Pressable onPress={takePhoto}>
+                <View style={styles.photoButtonContainer}>
+                  <MaterialIcon size={56} color="#fff" name="camera" />
+                </View>
+              </Pressable>
+              <Pressable
+                style={{
+                  position: "absolute",
+                  transform: [{ translateX: 65 }],
+                }}
+                onPress={goBack}
+              >
+                <View style={styles.cancelButtonContainer}>
+                  <MaterialIcon size={36} color="#f00" name="cancel" />
+                </View>
+              </Pressable>
+            </View>
           </Camera>
         )}
         {step === "preview" && photo && (
@@ -141,7 +170,6 @@ const UploadScreen = () => {
               >
                 <Pressable onPress={retakePhoto}>
                   <View style={styles.cancelButtonContainer}>
-                    <Text style={styles.buttonText}>Retake</Text>
                     <MaterialIcon size={36} color="#f00" name="cancel" />
                   </View>
                 </Pressable>
@@ -151,7 +179,7 @@ const UploadScreen = () => {
               <Pressable onPress={submitPhoto}>
                 <View style={styles.postButtonContainer}>
                   <Text style={styles.buttonText}>Continue</Text>
-                  <MaterialIcon size={36} color="#000" name="arrow-right" />
+                  <MaterialIcon size={36} color="#fff" name="arrow-right" />
                 </View>
               </Pressable>
             </View>
@@ -166,36 +194,44 @@ const UploadScreen = () => {
               >
                 <Pressable onPress={retakePhoto}>
                   <View style={styles.cancelButtonContainer}>
-                    <Text style={styles.buttonText}>Retake</Text>
                     <MaterialIcon size={36} color="#f00" name="cancel" />
                   </View>
                 </Pressable>
               </ImageBackground>
             </View>
             <View style={styles.previewBottomContainer}>
-              <Picker
-                style={{ width: "50%" }}
-                prompt="Select Category"
-                selectedValue={category}
-                onValueChange={(value, _) => setCategory(value)}
-              >
-                <Picker.Item label="Breakfast" value={Category.Breakfast} />
-                <Picker.Item label="Lunch" value={Category.Lunch} />
-                <Picker.Item label="Dinner" value={Category.Dinner} />
-                <Picker.Item label="Snack" value={Category.Snack} />
-              </Picker>
-              <TextInput
-                placeholder="Write a caption..."
-                maxLength={120}
-                style={{
-                  padding: 10,
-                  fontSize: 18,
-                  width: "100%",
-                  textAlign: "center",
-                }}
-                onChangeText={t => setCaption(t)}
-                value={caption}
-              />
+              <View style={{ width: "100%", flexDirection: "row" }}>
+                <TextInput
+                  multiline
+                  numberOfLines={4}
+                  placeholder="Write a caption..."
+                  maxLength={120}
+                  style={{
+                    padding: 10,
+                    fontSize: 18,
+                    width: "50%",
+                    textAlign: "center",
+                    backgroundColor: "#ddd",
+                  }}
+                  onChangeText={t => setCaption(t)}
+                  value={caption}
+                />
+                <Picker
+                  style={{
+                    width: "50%",
+                    backgroundColor: "#ddd",
+                  }}
+                  prompt="Select Category"
+                  selectedValue={category}
+                  onValueChange={(value, _) => setCategory(value)}
+                >
+                  <Picker.Item label="Breakfast" value={Category.Breakfast} />
+                  <Picker.Item label="Lunch" value={Category.Lunch} />
+                  <Picker.Item label="Dinner" value={Category.Dinner} />
+                  <Picker.Item label="Snack" value={Category.Snack} />
+                </Picker>
+              </View>
+
               <Pressable disabled={step === "uploading"} onPress={post}>
                 <View style={styles.postButtonContainer}>
                   <Text style={styles.buttonText}>Post your RealMeal!</Text>
@@ -245,14 +281,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: "#ddd",
+    backgroundColor: "#af52de",
     borderRadius: 25,
     marginBottom: 5,
   },
   photoButtonContainer: {
     alignItems: "center",
+    backgroundColor: "#af52de",
+    padding: 4,
+    margin: 8,
+    borderRadius: 50,
   },
-  buttonText: { fontSize: 25, fontWeight: "bold" },
+  buttonText: { fontSize: 25, fontWeight: "bold", color: "#fff" },
 
   takeButtonText: {},
 });

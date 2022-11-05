@@ -39,20 +39,36 @@ const MainNav = () => {
           <Stack.Screen name="Login" component={LoginScreen} />
         </Stack.Navigator>
       ) : (
-        <Tab.Navigator initialRouteName="Home">
+        <Tab.Navigator
+          screenOptions={{ tabBarActiveTintColor: "#af52de" }}
+          initialRouteName="Home"
+        >
           <Tab.Screen
             name="Home"
             component={HomeScreen}
             options={{
-              tabBarIcon: () => <MaterialIcon size={32} name="home" />,
+              tabBarIcon: ({ focused }) => (
+                <MaterialIcon
+                  size={32}
+                  name="home"
+                  color={focused ? "#af52de" : "black"}
+                />
+              ),
             }}
           />
           <Tab.Screen
             name="Upload"
-            component={UploadScreen}
+            component={UploadScreen as any}
             options={{
-              tabBarIcon: () => (
-                <MaterialCommunityIcon size={32} name="camera" />
+              tabBarStyle: {
+                display: "none",
+              },
+              tabBarIcon: ({ focused }) => (
+                <MaterialCommunityIcon
+                  size={32}
+                  name="camera"
+                  color={focused ? "#af52de" : "black"}
+                />
               ),
             }}
           />
@@ -60,7 +76,13 @@ const MainNav = () => {
             name="Profile"
             component={ProfileScreen}
             options={{
-              tabBarIcon: () => <MaterialIcon size={32} name="person" />,
+              tabBarIcon: ({ focused }) => (
+                <MaterialIcon
+                  size={32}
+                  name="person"
+                  color={focused ? "#af52de" : "black"}
+                />
+              ),
             }}
           />
         </Tab.Navigator>
