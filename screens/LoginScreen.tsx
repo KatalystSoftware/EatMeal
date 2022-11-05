@@ -4,26 +4,20 @@ import * as Google from "expo-auth-session/providers/google";
 import { GoogleAuthProvider, signInWithCredential, User } from "firebase/auth";
 import { auth } from "../config";
 import { Button, StyleSheet, View, Text } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import Constants from "expo-constants";
-import {
-  AuthenticatedUserContext,
-  AuthenticatedUserContextType,
-} from "../context";
-import { RootStackParamList } from "../App";
+import { AuthContext } from "../context";
+import { LoginStackParamList } from "../App";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 WebBrowser.maybeCompleteAuthSession();
 
-type Props = NativeStackScreenProps<RootStackParamList, "Login">;
+type Props = NativeStackScreenProps<LoginStackParamList, "Login">;
 
 const LoginScreen = ({ route, navigation }: Props) => {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: Constants?.manifest?.extra?.webClientId,
   });
-  const { user, setUser } = React.useContext(
-    AuthenticatedUserContext
-  ) as AuthenticatedUserContextType;
+  const { state, dispatch } = React.useContext(AuthContext);
 
   React.useEffect(() => {
     WebBrowser.warmUpAsync();
@@ -38,8 +32,8 @@ const LoginScreen = ({ route, navigation }: Props) => {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
       signInWithCredential(auth, credential).then((res) => {
-        setUser(res.user);
-        navigation.navigate("Home");
+        console.log("Signed in with Google! Setting user...");
+        dispatch({ type: "login", payload: res.user });
       });
     }
   }, [response]);
@@ -53,7 +47,6 @@ const LoginScreen = ({ route, navigation }: Props) => {
           promptAsync();
         }}
       />
-      <StatusBar style="auto" />
     </View>
   );
 };

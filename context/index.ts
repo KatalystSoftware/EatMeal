@@ -1,11 +1,2 @@
-import {
-  AuthenticatedUserContext,
-  AuthenticatedUserContextType,
-  AuthenticatedUserProvider,
-} from "./AuthenticatedUserContext";
-
-export {
-  AuthenticatedUserContext,
-  AuthenticatedUserContextType,
-  AuthenticatedUserProvider,
-};
+import AuthContextProvider, { AuthContext } from "./AuthContextProvider";
+export { AuthContext, AuthContextProvider };
