@@ -13,7 +13,9 @@ import {
   AuthContextProvider,
   PostContextProvider,
 } from "./context";
+import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
+import { KeyboardAvoidingView, Platform } from "react-native";
 
 export type BottomTabParamList = {
   Home: undefined;
@@ -49,7 +51,9 @@ const MainNav = () => {
             name="Upload"
             component={UploadScreen}
             options={{
-              tabBarIcon: () => <MaterialIcon size={32} name="add" />,
+              tabBarIcon: () => (
+                <MaterialCommunityIcon size={32} name="camera" />
+              ),
             }}
           />
           <Tab.Screen
@@ -69,7 +73,12 @@ export default function App() {
   return (
     <AuthContextProvider>
       <PostContextProvider>
-        <MainNav />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <MainNav />
+        </KeyboardAvoidingView>
       </PostContextProvider>
     </AuthContextProvider>
   );

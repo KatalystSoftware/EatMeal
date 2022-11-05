@@ -5,6 +5,11 @@ import {
   Text,
   ImageBackground,
   Pressable,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
@@ -22,6 +27,7 @@ const UploadScreen = () => {
   const [camera, setCamera] = React.useState<Camera | null>(null);
   const [photo, setPhoto] = React.useState<CameraCapturedPicture | null>(null);
   const [step, setStep] = React.useState<Steps>("camera");
+  const [caption, setCaption] = React.useState("");
   const authContext = React.useContext(AuthContext);
   const { user } = authContext.state;
   const { dispatch } = React.useContext(PostContext);
@@ -45,6 +51,7 @@ const UploadScreen = () => {
 
   const retakePhoto = () => {
     setPhoto(null);
+    setCaption("");
     setStep("camera");
   };
 
@@ -82,7 +89,7 @@ const UploadScreen = () => {
       const post = {
         userId: user.uid,
         imageUrl: downloadURL,
-        caption: "",
+        caption: caption,
         category: Category.Dinner,
         createdAt: Timestamp.now(),
       };
@@ -97,6 +104,7 @@ const UploadScreen = () => {
           },
         },
       });
+      setCaption("");
       setStep("camera");
     }
   };
@@ -106,60 +114,86 @@ const UploadScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
-      {step === "camera" && (
-        <Camera
-          ref={ref => setCamera(ref)}
-          style={styles.camera}
-          type={CameraType.back}
-        >
-          <Pressable onPress={takePhoto}>
-            <View style={styles.photoButtonContainer}>
-              <MaterialIcon size={56} color="#fff" name="camera" />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        {step === "camera" && (
+          <Camera
+            ref={ref => setCamera(ref)}
+            style={styles.camera}
+            type={CameraType.back}
+          >
+            <Pressable onPress={takePhoto}>
+              <View style={styles.photoButtonContainer}>
+                <MaterialIcon size={56} color="#fff" name="camera" />
+              </View>
+            </Pressable>
+          </Camera>
+        )}
+        {step === "preview" && photo && (
+          <View style={styles.preview}>
+            <View style={styles.previewTopContainer}>
+              <ImageBackground
+                resizeMethod="scale"
+                style={{ flex: 1, width: "100%" }}
+                source={{ uri: photo && photo.uri }}
+              >
+                <Pressable onPress={retakePhoto}>
+                  <View style={styles.cancelButtonContainer}>
+                    <Text style={styles.buttonText}>Retake</Text>
+                    <MaterialIcon size={36} color="#f00" name="cancel" />
+                  </View>
+                </Pressable>
+              </ImageBackground>
             </View>
-          </Pressable>
-        </Camera>
-      )}
-      {step === "preview" && photo && (
-        <ImageBackground
-          style={styles.preview}
-          source={{ uri: photo && photo.uri }}
-        >
-          <Pressable onPress={retakePhoto}>
-            <View style={styles.cancelButtonContainer}>
-              <Text style={styles.buttonText}>Retake</Text>
-              <MaterialIcon size={36} color="#f00" name="cancel" />
+            <View style={styles.previewBottomContainer}>
+              <Pressable onPress={submitPhoto}>
+                <View style={styles.postButtonContainer}>
+                  <Text style={styles.buttonText}>Continue</Text>
+                  <MaterialIcon size={36} color="#000" name="arrow-right" />
+                </View>
+              </Pressable>
             </View>
-          </Pressable>
-          <Pressable onPress={submitPhoto}>
-            <View style={styles.postButtonContainer}>
-              <Text style={styles.buttonText}>Continue</Text>
-              <MaterialIcon size={36} color="#000" name="arrow-right" />
+          </View>
+        )}
+        {(step === "info" || step === "uploading") && photo && (
+          <View style={styles.preview}>
+            <View style={styles.previewTopContainer}>
+              <ImageBackground
+                style={styles.preview}
+                source={{ uri: photo && photo.uri }}
+              >
+                <Pressable onPress={retakePhoto}>
+                  <View style={styles.cancelButtonContainer}>
+                    <Text style={styles.buttonText}>Retake</Text>
+                    <MaterialIcon size={36} color="#f00" name="cancel" />
+                  </View>
+                </Pressable>
+              </ImageBackground>
             </View>
-          </Pressable>
-        </ImageBackground>
-      )}
-      {(step === "info" || step === "uploading") && photo && (
-        <ImageBackground
-          style={styles.preview}
-          source={{ uri: photo && photo.uri }}
-        >
-          {/* Here we would add captions etc */}
-          <Pressable onPress={retakePhoto}>
-            <View style={styles.cancelButtonContainer}>
-              <Text style={styles.buttonText}>Retake</Text>
-              <MaterialIcon size={36} color="#f00" name="cancel" />
+            <View style={styles.previewBottomContainer}>
+              <TextInput
+                placeholder="Write a caption..."
+                maxLength={120}
+                style={{
+                  padding: 10,
+                  fontSize: 18,
+                  width: "100%",
+                  textAlign: "center",
+                }}
+                onChangeText={t => setCaption(t)}
+                value={caption}
+              />
+              <Pressable disabled={step === "uploading"} onPress={post}>
+                <View style={styles.postButtonContainer}>
+                  <Text style={styles.buttonText}>Post your RealMeal!</Text>
+                  <MaterialIcon size={32} color="#000" name="send" />
+                </View>
+              </Pressable>
             </View>
-          </Pressable>
-          <Pressable disabled={step === "uploading"} onPress={post}>
-            <View style={styles.postButtonContainer}>
-              <Text style={styles.buttonText}>Post</Text>
-              <MaterialIcon size={36} color="#000" name="send" />
-            </View>
-          </Pressable>
-        </ImageBackground>
-      )}
-    </View>
+          </View>
+        )}
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -175,21 +209,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   preview: {
-    flex: 1,
     justifyContent: "space-between",
+    width: "100%",
+    height: "100%",
+  },
+  previewTopContainer: {
+    borderColor: "red",
+    borderWidth: 1,
+    flex: 1,
+    alignItems: "flex-end",
+  },
+  previewBottomContainer: {
     alignItems: "center",
+    justifyContent: "center",
+    borderColor: "red",
+    borderWidth: 1,
   },
   cancelButtonContainer: {
     padding: 10,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-end",
   },
   postButtonContainer: {
     flexDirection: "row",
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#ddd",
     borderRadius: 25,
+    marginBottom: 5,
   },
   photoButtonContainer: {
     alignItems: "center",
