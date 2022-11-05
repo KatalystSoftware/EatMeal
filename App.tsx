@@ -1,13 +1,23 @@
 import * as React from "react";
-import { LoginScreen, HomeScreen, ProfileScreen } from "./screens";
+import {
+  LoginScreen,
+  HomeScreen,
+  ProfileScreen,
+  UploadScreen,
+} from "./screens";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { AuthContext, AuthContextProvider } from "./context";
+import {
+  AuthContext,
+  AuthContextProvider,
+  PostContextProvider,
+} from "./context";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 
 export type BottomTabParamList = {
   Home: undefined;
+  Upload: undefined;
   Profile: undefined;
 };
 
@@ -36,6 +46,13 @@ const MainNav = () => {
             }}
           />
           <Tab.Screen
+            name="Upload"
+            component={UploadScreen}
+            options={{
+              tabBarIcon: () => <MaterialIcon size={32} name="add" />,
+            }}
+          />
+          <Tab.Screen
             name="Profile"
             component={ProfileScreen}
             options={{
@@ -51,7 +68,9 @@ const MainNav = () => {
 export default function App() {
   return (
     <AuthContextProvider>
-      <MainNav />
+      <PostContextProvider>
+        <MainNav />
+      </PostContextProvider>
     </AuthContextProvider>
   );
 }
