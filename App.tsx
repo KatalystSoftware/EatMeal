@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AuthContext, AuthContextProvider } from "./context";
+import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 
 export type BottomTabParamList = {
   Home: undefined;
@@ -27,8 +28,20 @@ const MainNav = () => {
         </Stack.Navigator>
       ) : (
         <Tab.Navigator initialRouteName="Home">
-          <Tab.Screen name="Home" component={HomeScreen} />
-          <Tab.Screen name="Profile" component={ProfileScreen} />
+          <Tab.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{
+              tabBarIcon: () => <MaterialIcon size={32} name="home" />,
+            }}
+          />
+          <Tab.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{
+              tabBarIcon: () => <MaterialIcon size={32} name="person" />,
+            }}
+          />
         </Tab.Navigator>
       )}
     </NavigationContainer>
