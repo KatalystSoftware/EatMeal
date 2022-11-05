@@ -2,8 +2,8 @@ import * as React from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { PostContext } from "../context";
 import { db } from "../config";
-import { collection, getDocs } from "firebase/firestore";
-import { Post } from "../types";
+import { collection, getDoc, getDocs, doc } from "firebase/firestore";
+import { Post, PostWithUser, StrippedUser } from "../types";
 
 const HomeScreen = () => {
   const { state, dispatch } = React.useContext(PostContext);
@@ -19,7 +19,18 @@ const HomeScreen = () => {
             id: doc.id,
           } as Post),
       );
-      dispatch({ type: "initPosts", payload: { posts } });
+      const postsWithUser = await Promise.all<PostWithUser>(
+        posts.map(async post => {
+          const userRef = doc(db, "users", post.userId);
+          const userSnap = await getDoc(userRef);
+          const user = userSnap.data() as StrippedUser;
+          return {
+            ...post,
+            user,
+          } as PostWithUser;
+        }),
+      );
+      dispatch({ type: "initPosts", payload: { posts: postsWithUser } });
     };
     fetchPosts();
   }, []);
@@ -29,9 +40,15 @@ const HomeScreen = () => {
       {posts.length > 0 ? (
         posts.map(post => (
           <View key={post.id}>
-            <Text>{post.userId}</Text>
+            <Text>by {post.user.displayName}</Text>
             <Text>Insert image here</Text>
-            <Text>{post.caption}</Text>
+            {post.caption && <Text>{post.caption}</Text>}
+            <View
+              style={{
+                borderBottomColor: "black",
+                borderBottomWidth: StyleSheet.hairlineWidth,
+              }}
+            />
           </View>
         ))
       ) : (

@@ -15,3 +15,11 @@ export interface Post {
   category: Category;
   createdAt: Date;
 }
+
+export interface PostWithUser extends Post {
+  user: StrippedUser;
+}
+export interface StrippedUser {
+  displayName: string;
+  photoUrl: string;
+}

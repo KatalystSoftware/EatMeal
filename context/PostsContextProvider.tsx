@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Post } from "../types";
+import { Post, PostWithUser } from "../types";
 
 export const PostContext = React.createContext<{
   state: PostState;
@@ -10,19 +10,19 @@ export const PostContext = React.createContext<{
 });
 
 export interface PostState {
-  posts: Post[];
+  posts: PostWithUser[];
 }
 export type PostAction =
   | {
       type: "newPost";
       payload: {
-        post: Post;
+        post: PostWithUser;
       };
     }
   | {
       type: "initPosts";
       payload: {
-        posts: Post[];
+        posts: PostWithUser[];
       };
     };
 

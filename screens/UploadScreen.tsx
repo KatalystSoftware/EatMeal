@@ -75,14 +75,20 @@ const UploadScreen = () => {
       const post = {
         userId: user.uid,
         imageUrl: downloadURL,
-        caption: "no caption",
+        caption: "",
         category: Category.Dinner,
         createdAt: new Date(),
       };
       const docRef = await addDoc(postsCollection, post);
       dispatch({
         type: "newPost",
-        payload: { post: { ...post, id: docRef.id } },
+        payload: {
+          post: {
+            ...post,
+            id: docRef.id,
+            user: { displayName: user.displayName!, photoUrl: user.photoURL! },
+          },
+        },
       });
       setStep("camera");
     }
