@@ -12,7 +12,13 @@ const HomeScreen = () => {
     const fetchPosts = async () => {
       const postsRef = collection(db, "posts");
       const postsSnap = await getDocs(postsRef);
-      const posts = postsSnap.docs.map(doc => doc.data() as Post);
+      const posts = postsSnap.docs.map(
+        doc =>
+          ({
+            ...doc.data(),
+            id: doc.id,
+          } as Post),
+      );
       dispatch({ type: "initPosts", payload: { posts } });
     };
     fetchPosts();
