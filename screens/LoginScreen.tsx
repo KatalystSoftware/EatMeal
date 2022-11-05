@@ -1,16 +1,15 @@
 import * as React from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
-import {
-  GoogleAuthProvider,
-  signInWithCredential,
-  UserCredential,
-  User,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithCredential, User } from "firebase/auth";
 import { auth } from "../config";
 import { Button, StyleSheet, View, Text } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import Constants from "expo-constants";
+import {
+  AuthenticatedUserContext,
+  AuthenticatedUserContextType,
+} from "../context";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -18,7 +17,9 @@ export default function LoginScreenr() {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: Constants?.manifest?.extra?.webClientId,
   });
-  const [user, setUser] = React.useState<User | null>(null);
+  const { user, setUser } = React.useContext(
+    AuthenticatedUserContext
+  ) as AuthenticatedUserContextType;
 
   React.useEffect(() => {
     WebBrowser.warmUpAsync();
