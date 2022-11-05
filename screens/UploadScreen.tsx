@@ -19,6 +19,7 @@ import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { AuthContext, PostContext } from "../context";
 import { Category } from "../types";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+import { Picker } from "@react-native-picker/picker";
 
 type Steps = "camera" | "preview" | "info" | "uploading";
 
@@ -28,6 +29,7 @@ const UploadScreen = () => {
   const [photo, setPhoto] = React.useState<CameraCapturedPicture | null>(null);
   const [step, setStep] = React.useState<Steps>("camera");
   const [caption, setCaption] = React.useState("");
+  const [category, setCategory] = React.useState<Category>(Category.Breakfast);
   const authContext = React.useContext(AuthContext);
   const { user } = authContext.state;
   const { dispatch } = React.useContext(PostContext);
@@ -90,7 +92,7 @@ const UploadScreen = () => {
         userId: user.uid,
         imageUrl: downloadURL,
         caption: caption,
-        category: Category.Dinner,
+        category: category,
         createdAt: Timestamp.now(),
       };
       const docRef = await addDoc(postsCollection, post);
@@ -171,6 +173,17 @@ const UploadScreen = () => {
               </ImageBackground>
             </View>
             <View style={styles.previewBottomContainer}>
+              <Picker
+                style={{ width: "50%" }}
+                prompt="Select Category"
+                selectedValue={category}
+                onValueChange={(value, _) => setCategory(value)}
+              >
+                <Picker.Item label="Breakfast" value={Category.Breakfast} />
+                <Picker.Item label="Lunch" value={Category.Lunch} />
+                <Picker.Item label="Dinner" value={Category.Dinner} />
+                <Picker.Item label="Snack" value={Category.Snack} />
+              </Picker>
               <TextInput
                 placeholder="Write a caption..."
                 maxLength={120}
