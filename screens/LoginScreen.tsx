@@ -17,7 +17,7 @@ const LoginScreen = ({ route, navigation }: Props) => {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: Constants?.manifest?.extra?.webClientId,
   });
-  const { state, dispatch } = React.useContext(AuthContext);
+  const { dispatch } = React.useContext(AuthContext);
 
   React.useEffect(() => {
     WebBrowser.warmUpAsync();
@@ -32,7 +32,6 @@ const LoginScreen = ({ route, navigation }: Props) => {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
       signInWithCredential(auth, credential).then((res) => {
-        console.log("Signed in with Google! Setting user...");
         dispatch({ type: "login", payload: res.user });
       });
     }
