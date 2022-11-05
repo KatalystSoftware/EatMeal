@@ -4,9 +4,10 @@ import * as Google from "expo-auth-session/providers/google";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth, db } from "../config";
 import { collection, setDoc, doc } from "firebase/firestore";
-import { Button, StyleSheet, View } from "react-native";
+import { Text, Pressable, StyleSheet, View } from "react-native";
 import Constants from "expo-constants";
 import { AuthContext } from "../context";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -44,13 +45,29 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Button
+      <Pressable
+        style={{
+          backgroundColor: "#4285F4",
+          padding: 10,
+          borderRadius: 5,
+          flexDirection: "row",
+          alignItems: "center",
+        }}
         disabled={!request}
-        title="Login with Google"
         onPress={() => {
           promptAsync();
         }}
-      />
+      >
+        <Text style={{ fontSize: 24, color: "#fff", fontWeight: "bold" }}>
+          Login with Google
+        </Text>
+        <MaterialCommunityIcons
+          style={{ paddingHorizontal: 5 }}
+          name="google"
+          size={24}
+          color="white"
+        />
+      </Pressable>
     </View>
   );
 };
