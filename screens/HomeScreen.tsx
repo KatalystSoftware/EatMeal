@@ -1,5 +1,12 @@
 import * as React from "react";
-import { StyleSheet, View, Text, Image, FlatList } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  FlatList,
+  RefreshControl,
+} from "react-native";
 import { PostContext } from "../context";
 import { db } from "../config";
 import { collection, getDoc, getDocs, doc } from "firebase/firestore";
@@ -8,30 +15,33 @@ import { Category, Post, PostWithUser, StrippedUser } from "../types";
 const HomeScreen = () => {
   const { state, dispatch } = React.useContext(PostContext);
   const { posts } = state;
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const fetchPosts = async () => {
+    const postsRef = collection(db, "posts");
+    const postsSnap = await getDocs(postsRef);
+    const posts = postsSnap.docs.map(
+      doc =>
+        ({
+          ...doc.data(),
+          id: doc.id,
+        } as Post),
+    );
+    const postsWithUser = await Promise.all<PostWithUser>(
+      posts.map(async post => {
+        const userRef = doc(db, "users", post.userId);
+        const userSnap = await getDoc(userRef);
+        const user = userSnap.data() as StrippedUser;
+        return {
+          ...post,
+          user,
+        } as PostWithUser;
+      }),
+    );
+    dispatch({ type: "initPosts", payload: { posts: postsWithUser } });
+  };
+
   React.useEffect(() => {
-    const fetchPosts = async () => {
-      const postsRef = collection(db, "posts");
-      const postsSnap = await getDocs(postsRef);
-      const posts = postsSnap.docs.map(
-        doc =>
-          ({
-            ...doc.data(),
-            id: doc.id,
-          } as Post),
-      );
-      const postsWithUser = await Promise.all<PostWithUser>(
-        posts.map(async post => {
-          const userRef = doc(db, "users", post.userId);
-          const userSnap = await getDoc(userRef);
-          const user = userSnap.data() as StrippedUser;
-          return {
-            ...post,
-            user,
-          } as PostWithUser;
-        }),
-      );
-      dispatch({ type: "initPosts", payload: { posts: postsWithUser } });
-    };
     fetchPosts();
   }, []);
 
@@ -39,6 +49,9 @@ const HomeScreen = () => {
     <View style={styles.container}>
       {posts.length > 0 ? (
         <FlatList
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchPosts} />
+          }
           style={styles.list}
           data={posts}
           ItemSeparatorComponent={() => <View style={styles.divider} />}
@@ -59,7 +72,10 @@ const HomeScreen = () => {
                 </Text>
               </View>
               <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
-              <Text style={styles.captionText}>In This Image: {item.labels ? item.labels.join(', ') : 'no food found'}</Text>
+              <Text style={styles.captionText}>
+                In This Image:{" "}
+                {item.labels ? item.labels.join(", ") : "no food found"}
+              </Text>
               {item.caption && (
                 <Text style={styles.captionText}>{item.caption}</Text>
               )}
