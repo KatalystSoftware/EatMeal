@@ -2,7 +2,8 @@ import * as React from "react";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
-import { auth } from "../config";
+import { auth, db } from "../config";
+import { collection, setDoc, doc } from "firebase/firestore";
 import { Button, StyleSheet, View } from "react-native";
 import Constants from "expo-constants";
 import { AuthContext } from "../context";
@@ -24,13 +25,21 @@ const LoginScreen = () => {
   }, []);
 
   React.useEffect(() => {
-    if (response?.type === "success") {
-      const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential).then(res => {
-        dispatch({ type: "login", payload: res.user });
-      });
-    }
+    const login = async () => {
+      if (response?.type === "success") {
+        const { id_token } = response.params;
+        const credential = GoogleAuthProvider.credential(id_token);
+        const userRes = await signInWithCredential(auth, credential);
+        const user = userRes.user;
+        const userDoc = doc(db, "users", user.uid);
+        await setDoc(userDoc, {
+          displayName: user.displayName,
+          photoUrl: user.photoURL,
+        });
+        dispatch({ type: "login", payload: user });
+      }
+    };
+    login();
   }, [response]);
 
   return (
