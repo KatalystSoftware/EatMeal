@@ -10,6 +10,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  TouchableOpacity,
 } from "react-native";
 import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
@@ -244,7 +245,7 @@ const UploadScreen = ({ navigation }: BottomTabBarProps) => {
             </View>
             <View style={styles.previewBottomContainer}>
               <Pressable onPress={submitPhoto}>
-                <View style={styles.postButtonContainer}>
+                <View style={styles.postButtonContainerEnabled}>
                   <Text style={styles.buttonText}>Continue</Text>
                   <MaterialIcon size={36} color="#fff" name="arrow-right" />
                 </View>
@@ -299,12 +300,18 @@ const UploadScreen = ({ navigation }: BottomTabBarProps) => {
                 </Picker>
               </View>
 
-              <Pressable disabled={step === "uploading"} onPress={post}>
-                <View style={styles.postButtonContainer}>
+              <TouchableOpacity disabled={step === "uploading"} onPress={post}>
+                <View
+                  style={
+                    step === "uploading"
+                      ? styles.postButtonContainerDisabled
+                      : styles.postButtonContainerEnabled
+                  }
+                >
                   <Text style={styles.buttonText}>Post your RealMeal!</Text>
                   <MaterialIcon size={32} color="#000" name="send" />
                 </View>
-              </Pressable>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -343,12 +350,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
   },
-  postButtonContainer: {
+  postButtonContainerEnabled: {
     flexDirection: "row",
     paddingHorizontal: 15,
     paddingVertical: 10,
     alignItems: "center",
     backgroundColor: "#af52de",
+    borderRadius: 25,
+    marginBottom: 5,
+  },
+  postButtonContainerDisabled: {
+    flexDirection: "row",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    alignItems: "center",
+    backgroundColor: "#4e365a",
     borderRadius: 25,
     marginBottom: 5,
   },
