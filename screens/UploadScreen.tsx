@@ -214,16 +214,12 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   previewTopContainer: {
-    borderColor: "red",
-    borderWidth: 1,
     flex: 1,
     alignItems: "flex-end",
   },
   previewBottomContainer: {
     alignItems: "center",
     justifyContent: "center",
-    borderColor: "red",
-    borderWidth: 1,
   },
   cancelButtonContainer: {
     padding: 10,
