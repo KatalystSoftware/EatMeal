@@ -15,6 +15,7 @@ export interface Post {
   caption: string;
   category: Category;
   createdAt: Timestamp;
+  labels?: string[];
 }
 
 export interface PostWithUser extends Post {
