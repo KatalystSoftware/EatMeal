@@ -59,6 +59,7 @@ const HomeScreen = () => {
                 </Text>
               </View>
               <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
+              <Text style={styles.captionText}>In This Image: {item.labels ? item.labels.join(', ') : 'no food found'}</Text>
               {item.caption && (
                 <Text style={styles.captionText}>{item.caption}</Text>
               )}
