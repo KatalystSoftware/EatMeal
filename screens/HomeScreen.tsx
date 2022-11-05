@@ -44,7 +44,20 @@ const HomeScreen = () => {
           ItemSeparatorComponent={() => <View style={styles.divider} />}
           renderItem={({ item }) => (
             <View key={item.id}>
-              <Text style={styles.authorText}>by {item.user.displayName}</Text>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                }}
+              >
+                <Text style={styles.authorText}>
+                  by {item.user.displayName}
+                </Text>
+                <Text style={styles.authorText}>
+                  at {item.createdAt.toDate().toLocaleTimeString("en-US")}
+                </Text>
+              </View>
               <Image style={styles.postImage} source={{ uri: item.imageUrl }} />
               {item.caption && (
                 <Text style={styles.captionText}>{item.caption}</Text>

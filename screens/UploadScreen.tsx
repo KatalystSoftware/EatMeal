@@ -10,7 +10,7 @@ import { Camera, CameraCapturedPicture, CameraType } from "expo-camera";
 import MaterialIcon from "react-native-vector-icons/MaterialIcons";
 import { storage, db } from "../config";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { AuthContext, PostContext } from "../context";
 import { Category } from "../types";
 
@@ -78,7 +78,7 @@ const UploadScreen = () => {
         imageUrl: downloadURL,
         caption: "",
         category: Category.Dinner,
-        createdAt: new Date(),
+        createdAt: Timestamp.now(),
       };
       const docRef = await addDoc(postsCollection, post);
       dispatch({

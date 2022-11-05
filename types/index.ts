@@ -1,4 +1,5 @@
 import { User } from "firebase/auth";
+import { Timestamp } from "firebase/firestore";
 
 export enum Category {
   Breakfast,
@@ -13,7 +14,7 @@ export interface Post {
   imageUrl: string;
   caption: string;
   category: Category;
-  createdAt: Date;
+  createdAt: Timestamp;
 }
 
 export interface PostWithUser extends Post {

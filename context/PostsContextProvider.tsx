@@ -43,7 +43,9 @@ export default function PostContextProvider({
         case "initPosts":
           return {
             ...prevState,
-            posts: action.payload.posts,
+            posts: action.payload.posts.sort(
+              (a, b) => b.createdAt.toMillis() - a.createdAt.toMillis(),
+            ),
           };
       }
     },
