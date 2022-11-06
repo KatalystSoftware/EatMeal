@@ -25,6 +25,12 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF",
       },
+      config: {
+        googleSignIn: {
+          apiKey: process.env.GOOGLE_API_KEY_ANDROID,
+          certificateHash: process.env.GOOGLE_CERTIFICATE_HASH_ANDROID,
+        },
+      },
       package: "eatmeal.software.katalyst",
     },
     web: {
@@ -39,9 +45,11 @@ export default {
       messagingSenderId: process.env.MESSAGING_SENDER_ID,
       appId: process.env.APP_ID,
       webClientId: process.env.WEB_CLIENT_ID,
+      androidClientId: process.env.ANDROID_CLIENT_ID,
       eas: {
         projectId: process.env.EAS_PROJECT_ID,
       },
     },
+    scheme: ["eatmeal.software.katalyst", "eatmeal"],
   },
 };

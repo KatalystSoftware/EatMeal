@@ -14,8 +14,10 @@ WebBrowser.maybeCompleteAuthSession();
 const LoginScreen = () => {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: Constants?.manifest?.extra?.webClientId,
+    androidClientId: Constants?.manifest?.extra?.androidClientId,
   });
   const { dispatch } = React.useContext(AuthContext);
+  const [loginInProgress, setLoginInProgress] = React.useState(false);
 
   React.useEffect(() => {
     WebBrowser.warmUpAsync();
@@ -27,6 +29,7 @@ const LoginScreen = () => {
 
   React.useEffect(() => {
     const login = async () => {
+      setLoginInProgress(true);
       if (response?.type === "success") {
         const { id_token } = response.params;
         const credential = GoogleAuthProvider.credential(id_token);
@@ -43,7 +46,9 @@ const LoginScreen = () => {
         dispatch({ type: "login", payload: user });
         dispatch({ type: "setStats", payload: userStats.data() });
       }
+      setLoginInProgress(false);
     };
+
     login();
   }, [response]);
 
@@ -51,13 +56,13 @@ const LoginScreen = () => {
     <View style={styles.container}>
       <Pressable
         style={{
-          backgroundColor: "#af52de",
+          backgroundColor: loginInProgress ? "#4e365a" : "#af52de",
           padding: 10,
           borderRadius: 5,
           flexDirection: "row",
           alignItems: "center",
         }}
-        disabled={!request}
+        disabled={!request || loginInProgress}
         onPress={() => {
           promptAsync();
         }}
