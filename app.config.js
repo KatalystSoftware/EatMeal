@@ -50,6 +50,6 @@ export default {
         projectId: process.env.EAS_PROJECT_ID,
       },
     },
-    scheme: ["eatmeal.software.katalyst", "eatmeal"],
+    scheme: "eatmeal",
   },
 };
