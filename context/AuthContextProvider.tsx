@@ -1,7 +1,7 @@
 import * as React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { User } from "firebase/auth";
+import { UserStats } from "../types";
+import { BannerContext } from "./BannerContextProvider";
 
 export const AuthContext = React.createContext<{
   state: AuthState;
@@ -16,26 +16,28 @@ export type BottomTabParamList = {
   Profile: undefined;
 };
 
-const Tab = createBottomTabNavigator<BottomTabParamList>();
-
-export type LoginStackParamList = {
-  Login: undefined;
-};
-const Stack = createNativeStackNavigator<LoginStackParamList>();
-
 export interface AuthState {
   user: User | null;
+  stats?: UserStats;
 }
-export type AuthAction = {
-  type: "login" | "logout";
-  payload: User | null;
-};
+export type AuthAction =
+  | {
+      type: "login" | "logout";
+      payload: User | null;
+    }
+  | {
+      type: "setStats";
+      payload: UserStats;
+    };
+
 type AuthContextProviderProps = {
   children: React.ReactNode;
 };
+
 export default function AuthContextProvider({
   children,
 }: AuthContextProviderProps) {
+  const bannerContext = React.useContext(BannerContext);
   const [state, dispatch] = React.useReducer(
     (prevState: AuthState, action: AuthAction) => {
       switch (action.type) {
@@ -43,6 +45,9 @@ export default function AuthContextProvider({
           return { ...prevState, user: action.payload };
         case "logout":
           return { ...prevState, user: null };
+        case "setStats": {
+          return { ...prevState, stats: action.payload };
+        }
       }
     },
     {

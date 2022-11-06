@@ -10,7 +10,7 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
-import { AuthContext, PostContext } from "../context";
+import { AuthContext, BannerContext, PostContext } from "../context";
 import { db } from "../config";
 import {
   collection,
@@ -20,14 +20,16 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { Category, Post, PostWithUser, StrippedUser } from "../types";
-import { Chip } from "react-native-paper";
+import { Chip, Banner } from "react-native-paper";
+import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const HomeScreen = () => {
   const { state, dispatch } = React.useContext(PostContext);
   const { posts } = state;
   const userContext = React.useContext(AuthContext);
-  const { user } = userContext.state;
+  const { user, stats } = userContext.state;
   const [refreshing, setRefreshing] = React.useState(false);
+  const bannerContext = React.useContext(BannerContext);
 
   const fetchPosts = async () => {
     const postsRef = collection(db, "posts");
@@ -56,6 +58,20 @@ const HomeScreen = () => {
   React.useEffect(() => {
     fetchPosts();
   }, []);
+
+  React.useEffect(() => {
+    if (stats?.postCount == 1) {
+      bannerContext.dispatch({
+        type: "setBanner",
+        payload: {
+          type: "postCount",
+          count: 1,
+          title: "Getting Started",
+          description: "Make your first post.",
+        },
+      });
+    }
+  }, [stats]);
 
   const deletePost = (post: PostWithUser) => {
     Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
@@ -105,71 +121,95 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {posts.length > 0 ? (
-        <FlatList
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={fetchPosts} />
-          }
-          style={styles.list}
-          data={posts}
-          ItemSeparatorComponent={() => <View style={styles.divider} />}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              disabled={item.userId !== user?.uid}
-              key={item.id}
-              onPress={() => openPostMenu(item)}
-            >
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
+    <>
+      <Banner
+        visible={bannerContext.state.banner !== null}
+        icon={() => <MaterialCommunityIcon size={32} name="trophy" />}
+        actions={[
+          {
+            label: "Dismiss",
+            onPress: () => bannerContext.dispatch({ type: "dismissBanner" }),
+          },
+        ]}
+      >
+        <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+          {bannerContext.state.banner
+            ? bannerContext.state.banner.title + "!"
+            : "Achievement"}
+        </Text>
+        {"\n"}
+        <Text>
+          {bannerContext.state.banner
+            ? bannerContext.state.banner.description
+            : "Description"}
+        </Text>
+      </Banner>
+      <View style={styles.container}>
+        {posts.length > 0 ? (
+          <FlatList
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={fetchPosts} />
+            }
+            style={styles.list}
+            data={posts}
+            ItemSeparatorComponent={() => <View style={styles.divider} />}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                disabled={item.userId !== user?.uid}
+                key={item.id}
+                onPress={() => openPostMenu(item)}
               >
-                <Text style={styles.authorText}>
-                  {Category[item.category]} by {item.user.displayName}
-                </Text>
-                <Text style={styles.dateText}>
-                  at {item.createdAt.toDate().toLocaleTimeString("en-US")}
-                </Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Image
-                  style={styles.postImage}
-                  source={{ uri: item.imageUrl }}
-                />
-                <ScrollView
-                  horizontal={true}
+                <View
                   style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
+                    flex: 1,
+                    justifyContent: "space-between",
+                    flexDirection: "row",
+                    alignItems: "center",
                   }}
                 >
-                  {item.labels &&
-                    [...new Set(item.labels)].map(label => (
-                      <Chip
-                        key={label}
-                        style={{ margin: 2, backgroundColor: "#af52de" }}
-                      >
-                        <Text style={{ color: "#fff" }}>{label}</Text>
-                      </Chip>
-                    ))}
-                </ScrollView>
-              </View>
-              {item.caption && (
-                <Text style={styles.captionText}>{item.caption}</Text>
-              )}
-            </TouchableOpacity>
-          )}
-          keyExtractor={item => item.id}
-        />
-      ) : (
-        <Text>No posts yet</Text>
-      )}
-    </View>
+                  <Text style={styles.authorText}>
+                    {Category[item.category]} by {item.user.displayName}
+                  </Text>
+                  <Text style={styles.dateText}>
+                    at {item.createdAt.toDate().toLocaleTimeString("en-US")}
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Image
+                    style={styles.postImage}
+                    source={{ uri: item.imageUrl }}
+                  />
+                  <ScrollView
+                    horizontal={true}
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                    }}
+                  >
+                    {item.labels &&
+                      [...new Set(item.labels)].map(label => (
+                        <Chip
+                          key={label}
+                          style={{ margin: 2, backgroundColor: "#af52de" }}
+                        >
+                          <Text style={{ color: "#fff" }}>{label}</Text>
+                        </Chip>
+                      ))}
+                  </ScrollView>
+                </View>
+                {item.caption && (
+                  <Text style={styles.captionText}>{item.caption}</Text>
+                )}
+              </TouchableOpacity>
+            )}
+            keyExtractor={item => item.id}
+          />
+        ) : (
+          <Text>No posts yet</Text>
+        )}
+      </View>
+    </>
   );
 };
 

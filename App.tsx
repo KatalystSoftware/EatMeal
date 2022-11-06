@@ -11,6 +11,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   AuthContext,
   AuthContextProvider,
+  BannerContextProvider,
   PostContextProvider,
 } from "./context";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -32,6 +33,7 @@ const Stack = createNativeStackNavigator<LoginStackParamList>();
 
 const MainNav = () => {
   const { state } = React.useContext(AuthContext);
+
   return (
     <NavigationContainer>
       {!state.user ? (
@@ -95,12 +97,14 @@ export default function App() {
   return (
     <AuthContextProvider>
       <PostContextProvider>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-        >
-          <MainNav />
-        </KeyboardAvoidingView>
+        <BannerContextProvider>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+          >
+            <MainNav />
+          </KeyboardAvoidingView>
+        </BannerContextProvider>
       </PostContextProvider>
     </AuthContextProvider>
   );

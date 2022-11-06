@@ -3,7 +3,7 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { GoogleAuthProvider, signInWithCredential } from "firebase/auth";
 import { auth, db } from "../config";
-import { collection, setDoc, doc } from "firebase/firestore";
+import { collection, setDoc, doc, increment, getDoc } from "firebase/firestore";
 import { Text, Pressable, StyleSheet, View } from "react-native";
 import Constants from "expo-constants";
 import { AuthContext } from "../context";
@@ -33,11 +33,15 @@ const LoginScreen = () => {
         const userRes = await signInWithCredential(auth, credential);
         const user = userRes.user;
         const userDoc = doc(db, "users", user.uid);
+        const userStats = await getDoc(userDoc);
         await setDoc(userDoc, {
           displayName: user.displayName,
           photoUrl: user.photoURL,
+          postCount: userStats?.data()?.postCount ?? 0,
+          achievements: userStats?.data()?.achievements ?? [],
         });
         dispatch({ type: "login", payload: user });
+        dispatch({ type: "setStats", payload: userStats.data() });
       }
     };
     login();

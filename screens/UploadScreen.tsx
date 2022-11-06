@@ -22,6 +22,8 @@ import {
   Timestamp,
   updateDoc,
   doc,
+  increment,
+  getDoc,
 } from "firebase/firestore";
 import { AuthContext, PostContext } from "../context";
 import { Category } from "../types";
@@ -167,6 +169,20 @@ const UploadScreen = ({ navigation }: BottomTabBarProps) => {
         createdAt: Timestamp.now(),
       };
       const docRef = await addDoc(postsCollection, post);
+      const usersCollection = collection(db, "users");
+      const userDoc = doc(usersCollection, user.uid);
+      await updateDoc(userDoc, {
+        postCount: increment(1),
+      });
+      const updatedUser = await getDoc(userDoc);
+
+      authContext.dispatch({
+        type: "setStats",
+        payload: {
+          postCount: updatedUser.data()?.postCount,
+          achievements: [],
+        },
+      });
       dispatch({
         type: "newPost",
         payload: {

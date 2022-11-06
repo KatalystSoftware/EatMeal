@@ -25,3 +25,21 @@ export interface StrippedUser {
   displayName: string;
   photoUrl: string;
 }
+
+interface PostCountAchievement {
+  type: "postCount";
+  count: 1;
+  title: "Getting Started!";
+  description: "Make your first post.";
+}
+
+export type Achievement = PostCountAchievement;
+
+export interface UserStats {
+  postCount: number;
+  achievements: Achievement[];
+}
+
+export interface UserWithStats extends User {
+  stats: UserStats;
+}
