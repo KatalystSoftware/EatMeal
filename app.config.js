@@ -25,6 +25,7 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF",
       },
+      package: "eatmeal.software.katalyst",
     },
     web: {
       favicon: "./assets/favicon.png",
@@ -38,6 +39,9 @@ export default {
       messagingSenderId: process.env.MESSAGING_SENDER_ID,
       appId: process.env.APP_ID,
       webClientId: process.env.WEB_CLIENT_ID,
+      eas: {
+        projectId: process.env.EAS_PROJECT_ID,
+      },
     },
   },
 };
