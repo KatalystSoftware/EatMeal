@@ -15,6 +15,10 @@ const ProfileScreen = () => {
         <>
           <Text>Signed in as {state.user.displayName}</Text>
           <Text>Posts: {state.stats?.postCount}</Text>
+          <Text>
+            Achievements{" "}
+            {state.stats?.postCount && state.stats?.postCount >= 1 ? 1 : 0}
+          </Text>
           <Button
             title="Log Out"
             color="#af52de"
